@@ -6,12 +6,14 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/sarama"
+	"github.com/Shopify/sarama"
 )
 
 const topic = "sample-topic"
+const testTopic = "test"
 
 func main() {
+	fmt.Println("This is running")
 	producer, err := newProducer()
 	if err != nil {
 		fmt.Println("Could not create producer: ", err)
@@ -22,16 +24,19 @@ func main() {
 		fmt.Println("Could not create consumer: ", err)
 	}
 
-	subscribe(topic, consumer)
+	subscribe(testTopic, consumer)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, "Hello Sarama!") })
 
 	http.HandleFunc("/save", func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 		r.ParseForm()
-		msg := prepareMessage(topic, r.FormValue("q"))
+		msg := prepareMessage(testTopic, r.FormValue("q"))
 		partition, offset, err := producer.SendMessage(msg)
-		fmt.Fprintf(w, "Message was saved to partion: %d.\nMessage offset is: %d.\n %s error occured.", partition, offset, err.Error())
+		if err != nil {
+			fmt.Fprintf(w, "%s error occured.", err.Error())
+		}
+		fmt.Fprintf(w, "Message: %s.\nSaved to partion: %d.\nMessage offset is: %d", getMessage(), partition, offset)
 	})
 
 	http.HandleFunc("/retrieve", func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, html.EscapeString(getMessage())) })
