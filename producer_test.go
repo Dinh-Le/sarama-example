@@ -9,7 +9,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Producer", func() {
+var _ = Describe("Producer test", func() {
 	var (
 		sp *mocks.SyncProducer
 		t  *testing.T
@@ -28,7 +28,20 @@ var _ = Describe("Producer", func() {
 			Topic: "test",
 			Value: sarama.StringEncoder("This is test message"),
 		}
-		_, _, err := sp.SendMessage(msg)
+		partition, offset, err := sp.SendMessage(msg)
+		Expect(partition).To(Equal(int32(0)))
+		Expect(offset).To(Equal(int64(1)))
 		Expect(err).To(BeNil())
+	})
+	It("Should return error broker unreachable", func() {
+		sp.ExpectSendMessageAndFail(sarama.ErrOutOfBrokers)
+
+		msg := &sarama.ProducerMessage{
+			Topic: "test",
+			Value: sarama.StringEncoder("This is test message"),
+		}
+
+		_, _, err := sp.SendMessage(msg)
+		Expect(err).To(Equal(sarama.ErrOutOfBrokers))
 	})
 })
