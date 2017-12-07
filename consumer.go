@@ -6,6 +6,17 @@ import (
 	"github.com/Shopify/sarama"
 )
 
+func newConsumer(brokers []string, config *sarama.Config) (sarama.Consumer, error) {
+	consumer, err := sarama.NewConsumer(brokers, nil)
+	if err != nil {
+		if err.Error() == "kafka: client has run out of available brokers to talk to (Is your cluster reachable?)" {
+			return nil, errUnreachable
+		}
+		return nil, err
+	}
+	return consumer, nil
+}
+
 func subscribe(topic string, consumer sarama.Consumer) {
 	partitionList, err := consumer.Partitions(topic) //get all partitions on the given topic
 	if err != nil {

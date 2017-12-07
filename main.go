@@ -5,8 +5,6 @@ import (
 	"html"
 	"log"
 	"net/http"
-
-	"github.com/Shopify/sarama"
 )
 
 const topic = "sample-topic"
@@ -19,7 +17,7 @@ func main() {
 		fmt.Println("Could not create producer: ", err)
 	}
 
-	consumer, err := sarama.NewConsumer(brokers, nil)
+	consumer, err := newConsumer(brokers, nil)
 	if err != nil {
 		fmt.Println("Could not create consumer: ", err)
 	}

@@ -1,8 +1,15 @@
 package main
 
-import "github.com/Shopify/sarama"
+import (
+	"errors"
 
-var brokers = []string{"127.0.0.1:9092"}
+	"github.com/Shopify/sarama"
+)
+
+var (
+	brokers        = []string{"127.0.0.1:9092"}
+	errUnreachable = errors.New("Kafka cluster is unreachable")
+)
 
 func newProducer() (sarama.SyncProducer, error) {
 	config := sarama.NewConfig()
@@ -13,8 +20,13 @@ func newProducer() (sarama.SyncProducer, error) {
 	// config.Net.SASL.User = "user"
 	// config.Net.SASL.Password = "Wh46SARTtyt6"
 	producer, err := sarama.NewSyncProducer(brokers, config)
-
-	return producer, err
+	if err != nil {
+		if err.Error() == "kafka: client has run out of available brokers to talk to (Is your cluster reachable?)" {
+			return nil, errUnreachable
+		}
+		return nil, err
+	}
+	return producer, nil
 }
 
 func prepareMessage(topic, message string) *sarama.ProducerMessage {
