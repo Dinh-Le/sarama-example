@@ -31,6 +31,16 @@ var _ = Describe("Consumer test", func() {
 		Expect(msg).To(Equal("Hello world"))
 		Expect(err).To(BeNil())
 	})
+	It("Should receive and handle messages in order", func() {
+		mc.ExpectConsumePartition("test", 0, sarama.OffsetOldest).YieldMessage(&sarama.ConsumerMessage{Value: []byte("Hello world")})
+		mc.ExpectConsumePartition("test", 0, sarama.OffsetOldest).YieldMessage(&sarama.ConsumerMessage{Value: []byte("Hello world 2")})
+		pc, err := mc.ConsumePartition("test", 0, sarama.OffsetOldest)
+		Expect(err).To(BeNil())
+		testMsg := <-pc.Messages()
+		Expect(string(testMsg.Value)).To(Equal("Hello world"))
+		testMsg2 := <-pc.Messages()
+		Expect(string(testMsg2.Value)).To(Equal("Hello world 2"))
+	})
 	It("Should return out of broker error", func() {
 		mc.ExpectConsumePartition("test", 0, sarama.OffsetOldest).YieldError(sarama.ErrOutOfBrokers)
 		pc, err := mc.ConsumePartition("test", 0, sarama.OffsetOldest)
