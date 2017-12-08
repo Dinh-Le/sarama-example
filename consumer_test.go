@@ -17,11 +17,11 @@ var _ = Describe("Consumer test", func() {
 	)
 	BeforeEach(func() {
 		mc = mocks.NewConsumer(t, nil)
+		brokers = []string{"127.0.0.1:9092"}
 	})
 	AfterEach(func() {
 		err := mc.Close()
 		Expect(err).To(BeNil())
-		brokers = []string{"127.0.0.1:9092"}
 	})
 	It("Should receive and handle message", func() {
 		mc.ExpectConsumePartition("test", 0, sarama.OffsetOldest).YieldMessage(&sarama.ConsumerMessage{Value: []byte("Hello world")})

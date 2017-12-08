@@ -16,11 +16,11 @@ var _ = Describe("Producer test", func() {
 	)
 	BeforeEach(func() {
 		sp = mocks.NewSyncProducer(t, nil)
+		brokers = []string{"127.0.0.1:9092"}
 	})
 	AfterEach(func() {
 		err := sp.Close()
 		Expect(err).To(BeNil())
-		brokers = []string{"127.0.0.1:9092"}
 	})
 	It("Should be able to create new producer", func() {
 		_, err := newProducer()
