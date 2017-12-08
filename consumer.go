@@ -17,22 +17,28 @@ func newConsumer(brokers []string, config *sarama.Config) (sarama.Consumer, erro
 	return consumer, nil
 }
 
-func subscribe(topic string, consumer sarama.Consumer) {
+func subscribe(topic string, consumer sarama.Consumer) error {
 	partitionList, err := consumer.Partitions(topic) //get all partitions on the given topic
 	if err != nil {
 		fmt.Println("Error retrieving partitionList ", err)
+		return err
 	}
 	initialOffset := sarama.OffsetOldest //get offset for the oldest message on the topic
 
 	for _, partition := range partitionList {
-		pc, _ := consumer.ConsumePartition(topic, partition, initialOffset)
+		pc, err := consumer.ConsumePartition(topic, partition, initialOffset)
 
+		if err != nil {
+			fmt.Println("Error consuming partition", err)
+			return err
+		}
 		go func(pc sarama.PartitionConsumer) {
 			for message := range pc.Messages() {
 				messageReceived(message)
 			}
 		}(pc)
 	}
+	return nil
 }
 
 func messageReceived(message *sarama.ConsumerMessage) {

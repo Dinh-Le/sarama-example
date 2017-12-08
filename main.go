@@ -22,7 +22,7 @@ func main() {
 		fmt.Println("Could not create consumer: ", err)
 	}
 
-	subscribe(testTopic, consumer)
+	_ = subscribe(testTopic, consumer)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { fmt.Fprint(w, "Hello Sarama!") })
 
