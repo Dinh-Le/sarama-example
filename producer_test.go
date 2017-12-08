@@ -32,14 +32,15 @@ var _ = Describe("Producer test", func() {
 		Expect(err).To(Equal(errUnreachable))
 	})
 	It("Should be able to prepare message", func() {
-		msg := prepareMessage("testing", "Just another test message")
+		msg := prepareMessage("testing", "Just another test message", 1)
 		Expect(msg.Topic).To(Equal("testing"))
 		Expect(msg.Value).To(Equal(sarama.StringEncoder("Just another test message")))
+		Expect(msg.Partition).To(Equal(int32(1)))
 	})
 	It("Should send message and succeed", func() {
 		sp.ExpectSendMessageAndSucceed()
 
-		msg := prepareMessage("testing", "Just another test message")
+		msg := prepareMessage("testing", "Just another test message", 1)
 		partition, offset, err := sp.SendMessage(msg)
 		Expect(partition).To(Equal(int32(0)))
 		Expect(offset).To(Equal(int64(1)))

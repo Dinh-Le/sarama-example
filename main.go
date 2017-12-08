@@ -29,7 +29,7 @@ func main() {
 	http.HandleFunc("/save", func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 		r.ParseForm()
-		msg := prepareMessage(testTopic, r.FormValue("q"))
+		msg := prepareMessage(testTopic, r.FormValue("q"), 1)
 		partition, offset, err := producer.SendMessage(msg)
 		if err != nil {
 			fmt.Fprintf(w, "%s error occured.", err.Error())

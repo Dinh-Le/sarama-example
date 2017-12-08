@@ -29,10 +29,10 @@ func newProducer() (sarama.SyncProducer, error) {
 	return producer, nil
 }
 
-func prepareMessage(topic, message string) *sarama.ProducerMessage {
+func prepareMessage(topic, message string, partition int32) *sarama.ProducerMessage {
 	msg := &sarama.ProducerMessage{
 		Topic:     topic,
-		Partition: -1,
+		Partition: partition,
 		Value:     sarama.StringEncoder(message),
 	}
 
